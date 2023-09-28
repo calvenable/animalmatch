@@ -21,7 +21,7 @@ const numberOfSquaresY = 16;
 
 allAnimals = ['beaver','cat','crab','dog','dolphin','duck','flamingo','lizard','peacock','sheep','snail','swan','squirrel','penguin','giraffe','crocodile','koala','snake','octopus'];
 animals = [];
-const numAnimals = 12;
+numAnimals = 12;
 copiesPerAnimal = 2;
 
 // Gameplay logic variables
@@ -42,6 +42,7 @@ selectedCards = [];
 matchesFound = [];
 
 alignToGrid = false;
+easyMode = false;
 
 function init() {
     document.addEventListener("click", (evt) => {handleBackgroundClick();});
@@ -62,6 +63,7 @@ function pickAnimals() {
 }
 
 function startGame(gamemode) {
+    numAnimals = easyMode ? 6 : 12;
     hideMenu();
     pickAnimals();
     copiesPerAnimal = gamemode;
@@ -117,11 +119,13 @@ function showMenu() {
 
 function saveScoreboard() {
     let result = "";
-    for (let m=2; m<7; m++) {
-        for (let i=0; i<5; i++) {
-            item = localStorage.getItem("scoreM" + m + "P" + i);
-            if (item) {
-                result += "localStorage.setItem(\"scoreM" + m + "P" + i + "\", " + item + ");\n";
+    for (let e=0; e<2; e++) {
+        for (let m=2; m<7; m++) {
+            for (let i=0; i<5; i++) {
+                item = localStorage.getItem("scoreE" + e + "M" + m + "P" + i);
+                if (item) {
+                    result += "localStorage.setItem(\"scoreE" + e + "M" + m + "P" + i + "\", " + item + ");\n";
+                }
             }
         }
     }
@@ -148,6 +152,15 @@ function setMenuVisibility(state) {
     else {
         snaptogrid.classList.add("hidden");
         snaptogrid.classList.remove("visible");
+    }
+    let easy = document.getElementsByClassName("easy")[0];
+    if (state) {
+        easy.classList.add("visible");
+        easy.classList.remove("hidden");
+    }
+    else {
+        easy.classList.add("hidden");
+        easy.classList.remove("visible");
     }
 }
 
@@ -399,7 +412,7 @@ function revealCard(e, cardId) {
 }
 
 function getTimeoutForMode() {
-    return (500*(copiesPerAnimal+1));
+    return (easyMode ? 2 : 1)*(500*(copiesPerAnimal+1));
 }
 
 function handleBackgroundClick() {
@@ -588,6 +601,8 @@ function setBest(currentUserName) {
 
 function displayLeaderboardForMode() {
     document.getElementById("leaderboard-div").hidden = false;
+    document.getElementById("easymodelabel").hidden = !easyMode;
+
     leaderboard = getLeaderboardForMode();
     for (let i=0; i<5; i++) {
         nameField = document.getElementById("name" + (i+1));
@@ -606,7 +621,7 @@ function displayLeaderboardForMode() {
 function getLeaderboardForMode() {
     leaderboardForMode = [];
     for (let i=0; i<5; i++) {
-        nameScoreString = localStorage.getItem("scoreM" + copiesPerAnimal + "P" + i) ?? "";
+        nameScoreString = localStorage.getItem("scoreE" + (easyMode ? 1 : 0) + "M" + copiesPerAnimal + "P" + i) ?? "";
         leaderboardForMode[i] = {
             name: nameScoreString.substring(0,3),
             score: nameScoreString.substring(3,7),
@@ -621,7 +636,7 @@ function saveLeaderboard(lb) {
     for (let i=0; i<5; i++) {
         if (lb[i].name != "") {
             localStorage.setItem(
-                "scoreM" + copiesPerAnimal + "P" + i,
+                "scoreE" + (easyMode ? 1 : 0) + "M" + copiesPerAnimal + "P" + i,
                 lb[i].name + lb[i].score.toString().padStart(4,'0') + (lb[i].align ? '1' : '0')
             )
         }
@@ -639,4 +654,8 @@ function ascending() {
 
 function flipAlignToGrid() {
     alignToGrid = !alignToGrid;
+}
+
+function flipEasyMode() {
+    easyMode = !easyMode;
 }

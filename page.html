@@ -13,6 +13,7 @@
         <label for="leaderboardname" id="label-leaderboardname" hidden>Enter a name for the leaderboard:</label>
         <input type="text" maxlength="3" id="leaderboardname" hidden>
         <div id="leaderboard-div" hidden>
+            <p id="easymodelabel">Easy mode</p>
             <table id="leaderboard">
                 <tr>
                     <th>#</th>
@@ -45,8 +46,12 @@
             <button type="button" class="button start" id="start6" onclick="startGame(6)">Play 6-match</button>
 
             <div class="align">
-                <label for="snaptogrid">Align cards</label>
+                <label for="snaptogrid">Align cards:</label>
                 <input type="checkbox" id="snaptogrid" onchange="flipAlignToGrid()">
+            </div>
+            <div class="easy">
+                <label for="easymode">Easy Mode:</label>
+                <input type="checkbox" id="easymode" onchange="flipEasyMode()">
             </div>
         </div>
         
