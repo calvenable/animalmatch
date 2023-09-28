@@ -36,6 +36,7 @@ gameState = GameState.Open;
 numAttempts = 0;
 
 waitingForNameEntry = false;
+turnovertimeout = 0;
 
 selectedCards = [];
 matchesFound = [];
@@ -339,11 +340,11 @@ function removeItemOnce(arr, value) {
 
 function revealCard(e, cardId) {
     e.stopPropagation();
+    clearTimeout(turnovertimeout);
 
     let animalID = Math.floor(cardId/copiesPerAnimal);
 
     switch (gameState) {
-        
         case GameState.Match:
         case GameState.Fail:
             showUnsolvedCards();
@@ -381,6 +382,12 @@ function revealCard(e, cardId) {
                 }
                 else {
                     gameState = GameState.Fail;
+                    turnovertimeout = setTimeout (() => {
+                        showUnsolvedCards();
+                        selectedCards = [];
+                        gameState = GameState.Open;
+                        updateProgressStepper();
+                    }, 2000);
                 }
                 setAttemptsColour();
             }
