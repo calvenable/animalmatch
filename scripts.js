@@ -387,7 +387,7 @@ function revealCard(e, cardId) {
                         selectedCards = [];
                         gameState = GameState.Open;
                         updateProgressStepper();
-                    }, 2000);
+                    }, getTimeoutForMode());
                 }
                 setAttemptsColour();
             }
@@ -396,6 +396,10 @@ function revealCard(e, cardId) {
     }
 
     updateMessage();
+}
+
+function getTimeoutForMode() {
+    return (500*(copiesPerAnimal+1));
 }
 
 function handleBackgroundClick() {
