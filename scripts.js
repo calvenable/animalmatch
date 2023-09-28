@@ -573,8 +573,8 @@ function setButtonVisibility(buttonID, value) {
 }
 
 function updateBest() {
-    document.getElementById("leaderboardname").hidden = false;
-    document.getElementById("label-leaderboardname").hidden = false;
+    document.getElementById("leaderboardname").classList.remove("hidden");
+    document.getElementById("label-leaderboardname").classList.remove("hidden");
     waitingForNameEntry = true;
 }
 
@@ -584,8 +584,8 @@ function checkNameEntry(evt) {
         && document.getElementById("leaderboardname").value.length == 3) {
             setBest(document.getElementById("leaderboardname").value);
             waitingForNameEntry = false;
-            document.getElementById("leaderboardname").hidden = true;
-            document.getElementById("label-leaderboardname").hidden = true;
+            document.getElementById("leaderboardname").classList.add("hidden");
+            document.getElementById("label-leaderboardname").classList.add("hidden");
     }
 }
 

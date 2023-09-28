@@ -130,7 +130,7 @@ img {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 40px;
+    margin-top: 10px;
 }
 
 .start {
@@ -138,7 +138,7 @@ img {
 }
 
 #start2 {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     background-color: #c14444;
 }
 
@@ -177,4 +177,16 @@ table, th, td {
 }
 .bronze {
     background-color: rgb(190, 139, 10);
+}
+
+#leaderboardname {
+    width: 3em;
+    font-weight: bold;
+    font-size: 2em;
+    margin-left: 50px;
+}
+
+#label-leaderboardname {
+    font-size: 1.2em;
+    margin-left: 50px;
 }
