@@ -249,8 +249,8 @@ function add1v1PageElements() {
 function add1v1Cards() {
     count = 0;
     for (let player=-1; player<2; player += 2) {
-        for (let column = 0; column<4; column++) {
-            for (let row = 0; row<3; row++) {
+        for (let row = 0; row<3; row++) {
+            for (let column = 0; column<4; column++) {
                 let img = document.createElement("img");
                 img.src = "assets/cards/card" + cardOrder[count] + ".png";
                 img.draggable = false;
@@ -261,10 +261,15 @@ function add1v1Cards() {
                 img.onclick = function() {revealCard1v1(event, i )}; // TODO
                 img.onload = unhideElement(img, 800);
 
-                img.style.left = 2; //TODO
-                img.style.top = 2;
-
                 document.getElementById("cards").appendChild(img);
+
+                // (window.innerWidth/2) centers the tile layout on the middle of the screen
+                // (column*120) separates the tiles by their columns
+                // (player*350) puts the player 1 tiles on the left and the player 2 on the right
+                // ((row-1) * player * -55) offsets the tiles in each row so they are arranged diagonally (as on a real keyboard)
+                img.style.left = (window.innerWidth/2) + (column * 120) + (player * 350) + ((row-1) * player * -55) - 200 + "px";
+                img.style.top = 300 + (row*120) + "px";
+
                 count++;
             }
         }

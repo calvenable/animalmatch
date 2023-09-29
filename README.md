@@ -8,6 +8,8 @@ Animal Match is a simple pair-matching memory game where the player turns over p
 
 And voila! You're all set to start matching animals.
 
+>N.B. This project was created on a 2560x1440 monitor, and game elements are aligned with a mix of percentages and pixels. This may cause alignment/view problems on screens with different resolutions.
+
 ## Notes for use
 
 There are four gamemodes:
