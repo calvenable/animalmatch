@@ -5,12 +5,20 @@ body {
 
 #background {
     position: fixed;
-    top: 0;
-    left: 0;
+    bottom: 0;
     width: 50%;
-    height: 100%;
+    height: 88%;
     z-index: -1;
+}
+
+#background.left {
+    left: 0;
     background-color: pink; 
+}
+
+#background.right {
+    right: 0;
+    background-color: #008000;
 }
 
 #progress {
