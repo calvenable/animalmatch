@@ -45,6 +45,14 @@ matchesFound = [];
 alignToGrid = false;
 easyMode = false;
 
+competitiveMode = false;
+isPlayerOneTurn = true;
+playerOneScore = 0;
+playerTwoScore = 0;
+p2Animals = [];
+
+const cardOrder = ['q','w','e','r','a','s','d','f','z','x','c','v','u','i','o','p','h','j','k','l','b','n','m',','];
+
 function init() {
     document.addEventListener("click", (evt) => {handleBackgroundClick();});
     document.addEventListener("keypress", (evt) => {checkNameEntry(evt);});
@@ -64,6 +72,16 @@ function pickAnimals() {
     }
 }
 
+function pickP2Animals() {
+    p2Animals = [];
+    while (p2Animals.length < numAnimals) {
+        selected = selectRandomFromArray(animals);
+        if (p2animals.indexOf(selected) == -1) {
+            p2animals.push(selected);
+        }
+    }
+}
+
 function startGame(gamemode) {
     numAnimals = easyMode ? 6 : 12;
     hideMenu();
@@ -71,12 +89,29 @@ function startGame(gamemode) {
     copiesPerAnimal = gamemode;
     clearPageElements();
     resetGameVariables();
+    updateMessage();
     addPageElements();
 
     initialiseGridSpaces();
     placeItems();
     updateProgressStepper();
     displayLeaderboardForMode();
+}
+
+function start1v1() {
+    numAnimals = 12;
+    pickAnimals();
+    hideMenu();
+    clearPageElements();
+    resetGameVariables();
+    competitiveMode = true;
+    updateMessage();
+
+    add1v1PageElements();
+}
+
+function reset1v1Game() {
+    // TODO
 }
 
 function resetGame() {
@@ -105,6 +140,11 @@ function resetGameVariables() {
     isNewBest = false;
     selectedCards = [];
     matchesFound = [];
+
+    isCompetitiveMode = false;
+    isPlayerOneTurn = true;
+    playerOneScore = 0;
+    playerTwoScore = 0;
 }
 
 function hideMenu() {
@@ -199,6 +239,40 @@ function addCardImgs() {
         img.onload = unhideElement(img, 800);
         document.getElementById("cards").appendChild(img);
     }
+}
+
+function add1v1PageElements() {
+    add1v1Cards();
+    add1v1Animals();
+}
+
+function add1v1Cards() {
+    count = 0;
+    for (let player=-1; player<2; player += 2) {
+        for (let column = 0; column<4; column++) {
+            for (let row = 0; row<3; row++) {
+                let img = document.createElement("img");
+                img.src = "assets/cards/card" + cardOrder[count] + ".png";
+                img.draggable = false;
+                img.classList.add("card");
+                img.classList.add("hidden");
+                img.classList.add(cardOrder[count]);
+                
+                img.onclick = function() {revealCard1v1(event, i )}; // TODO
+                img.onload = unhideElement(img, 800);
+
+                img.style.left = 2; //TODO
+                img.style.top = 2;
+
+                document.getElementById("cards").appendChild(img);
+                count++;
+            }
+        }
+    }
+}
+
+function add1v1Animals() {
+    
 }
 
 function clearPageElements() {
@@ -639,28 +713,99 @@ menuMessageOptions = [
     "Match up the animal pairs and test your memory!"
 ]
 
+openMessageOptions1v1 = [
+    "Player INFO, it's your turn!",
+    "It's Player INFO to turn a card first!",
+    "Whenever you're ready, Player INFO"
+]
+
+partialMessageOptions1v1 = [
+    "Player INFO, can you turn over the matching animal?",
+    "Let's see if Player INFO can find the match!",
+    "Time for Player INFO to turn over a card. Hope it's a match!"
+]
+
+failMessageOptions1v1 = [
+    "Oh no! That's not a match.",
+    "Oops! Those animals don't match!",
+    "Nope - not a match. Keep looking!"
+]
+
+matchMessageOptions1v1 = [
+    "Nice - that's a match! A point for Player INFO!",
+    "Good work Player INFO, those are the same!",
+    "You have an impressive memory, Player INFO.",
+    "One point to Player INFO for an impressive match!"
+]
+
 function updateMessage() {
     newMessage = "";
     switch (gameState) {
         case GameState.Open:
-            newMessage = selectRandomFromArray(openMessageOptions);
-            break;
-        case GameState.Partial:
-            newMessage = selectRandomFromArray(partialMessageOptions);
-            break;
-        case GameState.Fail:
-            newMessage = selectRandomFromArray(failMessageOptions);
-            break;
-        case GameState.Match:
-            newMessage = selectRandomFromArray(matchMessageOptions);
-            newMessage = newMessage.replace("REMAINING", (numAnimals-calculateSum(matchesFound)));
-            break;
-        case GameState.End:
-            if (isNewBest) {
-                newMessage = selectRandomFromArray(newBestMessageOptions);
+            if (competitiveMode) {
+                newMessage = selectRandomFromArray(openMessageOptions1v1);
+                newMessage = newMessage.replace("INFO", isPlayerOneTurn? "1 (left)" : "2 (right)");
             }
             else {
-                newMessage = selectRandomFromArray(gameEndMessageOptions);
+                newMessage = selectRandomFromArray(openMessageOptions);
+            }
+            break;
+        case GameState.Partial:
+            if (competitiveMode) {
+                newMessage = selectRandomFromArray(partialMessageOptions1v1);
+                newMessage = newMessage.replace("INFO", isPlayerOneTurn? "1 (left)" : "2 (right)");
+            }
+            else {
+                newMessage = selectRandomFromArray(partialMessageOptions);
+            }
+            break;
+        case GameState.Fail:
+            if (competitiveMode) {
+                newMessage = selectRandomFromArray(failMessageOptions1v1);
+            }
+            else {
+                newMessage = selectRandomFromArray(failMessageOptions);
+            }
+            break;
+        case GameState.Match:
+            if (competitiveMode) {
+                newMessage = selectRandomFromArray(matchMessageOptions1v1);
+                newMessage = newMessage.replace("INFO", isPlayerOneTurn? "1" : "2");
+            }
+            else {
+                newMessage = selectRandomFromArray(matchMessageOptions);
+                newMessage = newMessage.replace("REMAINING", (numAnimals-calculateSum(matchesFound)));
+            }
+            break;
+        case GameState.End:
+            if (competitiveMode) {
+                if (playerOneScore == playerTwoScore) {
+                    newMessage = "It's a tie! Play again to see who will be victorious!";
+                }
+                else if (playerTwoScore > playerOneScore) {
+                    if (playerTwoScore - playerOneScore < 3) {
+                        newMessage = "It was close, but Player 2 pulled the win!";
+                    }
+                    else {
+                        newMessage = "A decisive victory for Player 2. Fancy a rematch?";
+                    }
+                }
+                else {
+                    if (playerOneScore - playerTwoScore < 3) {
+                        newMessage = "A close game, but Player 1 snatched the win!";
+                    }
+                    else {
+                        newMessage = "Victory for Player 1! Fancy a rematch?"
+                    }
+                }
+            }
+            else {
+                if (isNewBest) {
+                    newMessage = selectRandomFromArray(newBestMessageOptions);
+                }
+                else {
+                    newMessage = selectRandomFromArray(gameEndMessageOptions);
+                }
             }
             break;
         case GameState.Menu:
