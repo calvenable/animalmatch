@@ -76,8 +76,8 @@ function pickP2Animals() {
     p2Animals = [];
     while (p2Animals.length < numAnimals) {
         selected = selectRandomFromArray(animals);
-        if (p2animals.indexOf(selected) == -1) {
-            p2animals.push(selected);
+        if (p2Animals.indexOf(selected) == -1) {
+            p2Animals.push(selected);
         }
     }
 }
@@ -101,6 +101,7 @@ function startGame(gamemode) {
 function start1v1() {
     numAnimals = 12;
     pickAnimals();
+    pickP2Animals();
     hideMenu();
     clearPageElements();
     resetGameVariables();
@@ -235,15 +236,15 @@ function addCardImgs() {
         img.classList.add("card");
         img.classList.add("hidden");
         img.classList.add(i);
-        img.onclick = function() {revealCard(event, i )};
+        img.onclick = function() {revealCard(event, i)};
         img.onload = unhideElement(img, 800);
         document.getElementById("cards").appendChild(img);
     }
 }
 
 function add1v1PageElements() {
-    add1v1Cards();
     add1v1Animals();
+    add1v1Cards();
 }
 
 function add1v1Cards() {
@@ -252,14 +253,15 @@ function add1v1Cards() {
         for (let row = 0; row<3; row++) {
             for (let column = 0; column<4; column++) {
                 let img = document.createElement("img");
-                img.src = "assets/cards/card" + cardOrder[count] + ".png";
+                let cardLetter = cardOrder[count];
+                img.src = "assets/cards/card" + cardLetter + ".png";
                 img.draggable = false;
                 img.classList.add("card");
                 img.classList.add("hidden");
-                img.classList.add(cardOrder[count]);
+                img.classList.add(cardLetter);
                 
-                img.onclick = function() {revealCard1v1(event, i )}; // TODO
-                img.onload = unhideElement(img, 800);
+                img.onclick = function() {revealCard1v1(event, cardLetter)}; // TODO
+                img.onload = unhideElement(img, 2500);
 
                 document.getElementById("cards").appendChild(img);
 
@@ -277,7 +279,29 @@ function add1v1Cards() {
 }
 
 function add1v1Animals() {
-    
+    count = 0;
+    for (let player=-1; player<2; player += 2) {
+        for (let row = 0; row<3; row++) {
+            for (let column = 0; column<4; column++) {
+                let img = document.createElement("img");
+                img.src = "assets/animals/" + (player==-1 ? animals[count%numAnimals] : p2Animals[count%numAnimals]) + ".png";
+                img.draggable = false;
+                img.classList.add("item");
+                img.classList.add("hidden");
+                img.classList.add(player==-1 ? animals[count%numAnimals] : p2Animals[count%numAnimals]);
+                if (count%2) {
+                    img.classList.add("flip");
+                }
+                img.onload = unhideElement(img, 3500);
+
+                document.getElementById("animals").appendChild(img);
+                img.style.left = (window.innerWidth/2) + (column * 120) + (player * 350) + ((row-1) * player * -55) - 200 + "px";
+                img.style.top = 300 + (row*120) + "px";
+
+                count++;
+            }
+        }
+    }
 }
 
 function clearPageElements() {
@@ -323,15 +347,24 @@ function showAllElements() {
     }
 }
 
+function extraWidth() {
+    widthExtra = 5;
+    if (easyMode) {
+        widthExtra = 2;
+    }
+    return widthExtra;
+}
+
 function initialiseGridSpaces() {
     if (alignToGrid) {
-        for (let xc=0; xc<copiesPerAnimal+5; xc++) {
+
+        for (let xc=0; xc<copiesPerAnimal+extraWidth(); xc++) {
             gridOffsetX[xc] = xc * 120;
-            for (let yc=0; yc<Math.ceil((numAnimals*copiesPerAnimal)/copiesPerAnimal+5); yc++) {
+            for (let yc=0; yc<Math.ceil((numAnimals*copiesPerAnimal)/(copiesPerAnimal+extraWidth())); yc++) {
                 gridOffsetY[yc] = yc * 120;
             }
         }
-        alignedGridXOffset = (window.innerWidth/2) - 105*((copiesPerAnimal+5)/2);
+        alignedGridXOffset = (window.innerWidth/2) - 105*((copiesPerAnimal+extraWidth())/2);
     }
     else {
         for (let xc=0; xc<numberOfSquaresX; xc++) {
@@ -373,8 +406,8 @@ function placeItems() {
             
             thisitem = document.getElementsByClassName("item")[p];
             thiscard = document.getElementsByClassName("card")[p];
-            x = alignedGridXOffset + gridOffsetX[count % (copiesPerAnimal+5)];
-            y = alignedGridYOffset + gridOffsetY[Math.floor(count/(copiesPerAnimal+5))];
+            x = alignedGridXOffset + gridOffsetX[count % (copiesPerAnimal+extraWidth())];
+            y = alignedGridYOffset + gridOffsetY[Math.floor(count/(copiesPerAnimal+extraWidth()))];
             moveItemPX(thisitem, x, y);
             moveItemPX(thiscard, x, y);
 
@@ -490,6 +523,14 @@ function revealCard(e, cardId) {
     }
 
     updateMessage();
+}
+
+function revealCard1v1(evt, cardKey) {
+    evt.stopPropagation();
+    document.getElementsByClassName(cardKey)[0].classList.add("hidden");
+    document.getElementsByClassName(cardKey)[0].classList.remove("visible");
+
+    // TODO
 }
 
 function getTimeoutForMode() {
