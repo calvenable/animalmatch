@@ -55,7 +55,7 @@ const cardOrder = ['q','w','e','r','a','s','d','f','z','x','c','v','u','i','o','
 
 function init() {
     document.addEventListener("click", (evt) => {handleBackgroundClick();});
-    document.addEventListener("keypress", (evt) => {checkNameEntry(evt);});
+    document.addEventListener("keypress", (evt) => {handleKeyPress(evt);});
     pickAnimals();
     updateMessage();
     console.log("Welcome to the console! You can easily use this to cheat because all of the JavaScript here is locally stored, but we trust you to behave.");
@@ -269,7 +269,7 @@ function add1v1Cards() {
                 // (column*120) separates the tiles by their columns
                 // (player*350) puts the player 1 tiles on the left and the player 2 on the right
                 // ((row-1) * player * -55) offsets the tiles in each row so they are arranged diagonally (as on a real keyboard)
-                img.style.left = (window.innerWidth/2) + (column * 120) + (player * 350) + ((row-1) * player * -55) - 200 + "px";
+                img.style.left = (window.innerWidth/2) + (column * 120) + (player * 350) + ((row-1) * player * -55) - 180 + "px";
                 img.style.top = 300 + (row*120) + "px";
 
                 count++;
@@ -295,7 +295,7 @@ function add1v1Animals() {
                 img.onload = unhideElement(img, 3500);
 
                 document.getElementById("animals").appendChild(img);
-                img.style.left = (window.innerWidth/2) + (column * 120) + (player * 350) + ((row-1) * player * -55) - 200 + "px";
+                img.style.left = (window.innerWidth/2) + (column * 120) + (player * 350) + ((row-1) * player * -55) - 180 + "px";
                 img.style.top = 300 + (row*120) + "px";
 
                 count++;
@@ -526,9 +526,20 @@ function revealCard(e, cardId) {
 }
 
 function revealCard1v1(evt, cardKey) {
-    evt.stopPropagation();
-    document.getElementsByClassName(cardKey)[0].classList.add("hidden");
-    document.getElementsByClassName(cardKey)[0].classList.remove("visible");
+    if (evt) {
+        evt.stopPropagation();
+    }
+    if ((isPlayerOneTurn && cardOrder.indexOf(cardKey) < numAnimals) || (!isPlayerOneTurn && cardOrder.indexOf(cardKey) >= numAnimals)) {
+        // Player clicked one of their cards on their turn
+        if (selectedCards.indexOf(cardOrder.indexOf(cardKey)) != -1) {
+            return;
+        }
+    
+        selectedCards.push(cardOrder.indexOf(cardKey));
+        hideCard(cardKey);
+        flipPlayerTurn();
+    }
+
 
     // TODO
 }
@@ -633,7 +644,7 @@ function updateBest() {
     waitingForNameEntry = true;
 }
 
-function checkNameEntry(evt) {
+function handleKeyPress(evt) {
     if (waitingForNameEntry
         && evt.key == "Enter"
         && document.getElementById("leaderboardname").value.length == 3) {
@@ -641,6 +652,12 @@ function checkNameEntry(evt) {
             waitingForNameEntry = false;
             document.getElementById("leaderboardname").classList.add("hidden");
             document.getElementById("label-leaderboardname").classList.add("hidden");
+    }
+    else {
+        if (cardOrder.indexOf(evt.key) == -1) {
+            return;
+        }
+        revealCard1v1(null, evt.key);
     }
 }
 
@@ -713,6 +730,11 @@ function flipAlignToGrid() {
 
 function flipEasyMode() {
     easyMode = !easyMode;
+}
+
+function flipPlayerTurn() {
+    isPlayerOneTurn = !isPlayerOneTurn;
+
 }
 
 openMessageOptions = [

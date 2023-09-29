@@ -4,9 +4,10 @@
         <title>Pair Matching Game</title>
         <link rel="stylesheet" href="styles.css">
         <script src="scripts.js"></script>
-
+        
     </head>
     <body onload="init()">
+        <div id="background"></div>
         <h1 id="title">Animal Match</h1>
         <h2 id="subtitle">Turn over sets of cards and try to find all the matching animals!</h2>
         <p id="attempts"></p>
@@ -41,11 +42,11 @@
         <div class="startbuttons">
             <button type="button" class="button start" id="start2" onclick="startGame(2)">Play Animal Match (Original)</button>
             <button type="button" class="button start" id="start1v1" onclick="start1v1()">Play Competitive (2 player)</button>
-
+            
             <button type="button" class="button start" id="start3" onclick="startGame(3)">Play 3-match</button>
             <button type="button" class="button start" id="start4" onclick="startGame(4)">Play 4-match</button>
             <button type="button" class="button start" id="start6" onclick="startGame(6)">Play 6-match</button>
-
+            
             <div class="align">
                 <label for="snaptogrid">Align cards:</label>
                 <input type="checkbox" id="snaptogrid" onchange="flipAlignToGrid()">
@@ -58,10 +59,11 @@
         
         <button type="button" class="button hidden" id="playagain" onclick="resetGame()">Play Again</button>
         <button type="button" class="button hidden" id="menu" onclick="showMenu()">Menu</button>
-
+        
         <div id="animals"></div>
         <div id="cards"></div>
         <span id="progress"></span>
     </body>
     
-</html>
+    </html>
+    
