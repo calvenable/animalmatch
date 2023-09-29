@@ -30,9 +30,10 @@ const GameState = {
     Partial: 1, // At least one card flipped this turn
     Fail: 2,    // 'copies' many cards flipped; not matching
     Match: 3,   // 'copies' many cards flipped: all matching
-    End: 4      // All matches found
+    End: 4,     // All matches found
+    Menu: 5     // Not in a game; menu screen
 }
-gameState = GameState.Open;
+gameState = GameState.Menu;
 numAttempts = 0;
 
 waitingForNameEntry = false;
@@ -48,6 +49,7 @@ function init() {
     document.addEventListener("click", (evt) => {handleBackgroundClick();});
     document.addEventListener("keypress", (evt) => {checkNameEntry(evt);});
     pickAnimals();
+    updateMessage();
     console.log("Welcome to the console! You can easily use this to cheat because all of the JavaScript here is locally stored, but we trust you to behave.");
     console.log("Type saveScoreboard() to get a create script for the leaderboards.");
 }
@@ -172,7 +174,7 @@ function addPageElements() {
 function addAnimalImgs() {
     for (let i=0; i<numAnimals*copiesPerAnimal; i++) {
         let img = document.createElement("img");
-        img.src = "assets/" + animals[Math.floor(i/copiesPerAnimal)] + ".png";
+        img.src = "assets/animals/" + animals[Math.floor(i/copiesPerAnimal)] + ".png";
         img.draggable = false;
         img.classList.add("item");
         img.classList.add("hidden");
@@ -485,73 +487,6 @@ const calculateSum = (arr) => {
     }, 0);
 }
 
-openMessageOptions = [
-    "Click to turn over cards at a time; try and find matching sets!",
-    "Click to reveal animals at a time; see if you can find the matches!",
-    "Click on cards to turn them over; try to uncover all the matching animals!"
-]
-
-partialMessageOptions = [
-    "Can you find the matches?",
-    "Do you know where the matching animals are?",
-    "Click again to search for matches!",
-    "See if you can turn over the matches!"
-]
-
-failMessageOptions = [
-    "Oops! Those don't match. Click anywhere to try again.",
-    "What a silly billy - those animals don't match. Give it another go.",
-    "Oh no! Those aren't the same animal. Try again.",
-    "Nope - not a match. Keep looking!"
-]
-
-matchMessageOptions = [
-    "Nice - that's a match! Only REMAINING left to find!",
-    "Good work, those are all the same! Keep it up!",
-    "Well done! Just REMAINING more sets to uncover!",
-    "Those are indeed all the same animal. Chop chop, there's REMAINING more to find."
-]
-
-newBestMessageOptions = [
-    "Congratulations - that's a new best score! Want to try again?",
-    "Woah! You've beaten your best score! Reckon you can do it again?",
-    "That's a new record! But I think you can do better..."
-]
-
-gameEndMessageOptions = [
-    "Congratulations - you did it! Click the button to try and beat your score!",
-    "I'm so proud of you for finding all the sets. Think you can do it again faster?",
-    "Nice work, that's the game! Click 'play again' to try and beat your score!"
-]
-
-function updateMessage() {
-    newMessage = "";
-    switch (gameState) {
-        case GameState.Open:
-            newMessage = selectRandomFromArray(openMessageOptions);
-            break;
-        case GameState.Partial:
-            newMessage = selectRandomFromArray(partialMessageOptions);
-            break;
-        case GameState.Fail:
-            newMessage = selectRandomFromArray(failMessageOptions);
-            break;
-        case GameState.Match:
-            newMessage = selectRandomFromArray(matchMessageOptions);
-            newMessage = newMessage.replace("REMAINING", (numAnimals-calculateSum(matchesFound)));
-            break;
-        case GameState.End:
-            if (isNewBest) {
-                newMessage = selectRandomFromArray(newBestMessageOptions);
-            }
-            else {
-                newMessage = selectRandomFromArray(gameEndMessageOptions);
-            }
-            break;
-    }
-    document.getElementById("subtitle").innerText = newMessage;
-}
-
 function selectRandomFromArray(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
@@ -658,4 +593,79 @@ function flipAlignToGrid() {
 
 function flipEasyMode() {
     easyMode = !easyMode;
+}
+
+openMessageOptions = [
+    "Click to turn over cards at a time; try and find matching sets!",
+    "Click to reveal animals at a time; see if you can find the matches!",
+    "Click on cards to turn them over; try to uncover all the matching animals!"
+]
+
+partialMessageOptions = [
+    "Can you find the matches?",
+    "Do you know where the matching animals are?",
+    "Click again to search for matches!",
+    "See if you can turn over the matches!"
+]
+
+failMessageOptions = [
+    "Oops! Those don't match. Click anywhere to try again.",
+    "What a silly billy - those animals don't match. Give it another go.",
+    "Oh no! Those aren't the same animal. Try again.",
+    "Nope - not a match. Keep looking!"
+]
+
+matchMessageOptions = [
+    "Nice - that's a match! Only REMAINING left to find!",
+    "Good work, those are all the same! Keep it up to find the REMAINING still hiding!",
+    "Well done! Just REMAINING more sets to uncover!",
+    "Those are indeed all the same animal. Chop chop, there's REMAINING more to find."
+]
+
+newBestMessageOptions = [
+    "Congratulations - that's a new best score! Want to try again?",
+    "Woah! You've beaten your best score! Reckon you can do it again?",
+    "That's a new record! But I think you can do better..."
+]
+
+gameEndMessageOptions = [
+    "Congratulations - you did it! Click the button to try and beat your score!",
+    "I'm so proud of you for finding all the sets. Think you can do it again faster?",
+    "Nice work, that's the game! Click 'play again' to try and beat your score!"
+]
+
+menuMessageOptions = [
+    "Turn over sets of cards and try to find all the matching animals!",
+    "Match up the animal pairs and test your memory!"
+]
+
+function updateMessage() {
+    newMessage = "";
+    switch (gameState) {
+        case GameState.Open:
+            newMessage = selectRandomFromArray(openMessageOptions);
+            break;
+        case GameState.Partial:
+            newMessage = selectRandomFromArray(partialMessageOptions);
+            break;
+        case GameState.Fail:
+            newMessage = selectRandomFromArray(failMessageOptions);
+            break;
+        case GameState.Match:
+            newMessage = selectRandomFromArray(matchMessageOptions);
+            newMessage = newMessage.replace("REMAINING", (numAnimals-calculateSum(matchesFound)));
+            break;
+        case GameState.End:
+            if (isNewBest) {
+                newMessage = selectRandomFromArray(newBestMessageOptions);
+            }
+            else {
+                newMessage = selectRandomFromArray(gameEndMessageOptions);
+            }
+            break;
+        case GameState.Menu:
+            newMessage = selectRandomFromArray(menuMessageOptions);
+            break;
+    }
+    document.getElementById("subtitle").innerText = newMessage;
 }
