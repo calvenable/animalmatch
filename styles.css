@@ -13,12 +13,14 @@ body {
 
 #background.left {
     left: 0;
-    background-color: pink; 
+    background-color: #b4c7e7; 
+    transition: all ease 300ms;
 }
 
 #background.right {
     right: 0;
-    background-color: #008000;
+    background-color: #b4c7e7;
+    transition: all ease 300ms;
 }
 
 #progress {
