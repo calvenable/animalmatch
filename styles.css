@@ -13,12 +13,14 @@ body {
 
 #background.left {
     left: 0;
+    border-radius: 12px;
     background-color: #b4c7e7; 
     transition: all ease 300ms;
 }
 
 #background.right {
     right: 0;
+    border-radius: 12px;
     background-color: #b4c7e7;
     transition: all ease 300ms;
 }

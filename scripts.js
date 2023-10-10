@@ -103,6 +103,7 @@ function start1v1() {
     pickAnimals();
     pickP2Animals();
     hideMenu();
+    setPlayAgainButtonVisibility(false);
     clearPageElements();
     resetGameVariables();
     competitiveMode = true;
@@ -112,25 +113,26 @@ function start1v1() {
     setBackgroundColours();
 }
 
-function reset1v1Game() {
-    // TODO
-}
-
 function resetGame() {
-    hideAllElements();
-    resetGameVariables();
-    updateProgressStepper();
+    if (competitiveMode) {
+        hideAllElements();
+        start1v1();
+    }
+    else {
+        hideAllElements();
+        resetGameVariables();
+        updateProgressStepper();
 
-    setTimeout(() => {
-        initialiseGridSpaces();
-        placeItems();
-        setPlayAgainButtonVisibility(false);
-        displayLeaderboardForMode();
-        updateMessage();
-        document.getElementById("attempts").innerText = "";
-        showAllElements();
-    }, 700);
-
+        setTimeout(() => {
+            initialiseGridSpaces();
+            placeItems();
+            setPlayAgainButtonVisibility(false);
+            displayLeaderboardForMode();
+            updateMessage();
+            document.getElementById("attempts").innerText = "";
+            showAllElements();
+        }, 700);
+    }
 }
 
 function resetGameVariables() {
@@ -168,7 +170,7 @@ function saveScoreboard() {
             for (let i=0; i<5; i++) {
                 item = localStorage.getItem("scoreE" + e + "M" + m + "P" + i);
                 if (item) {
-                    result += "localStorage.setItem(\"scoreE" + e + "M" + m + "P" + i + "\", " + item + ");\n";
+                    result += "localStorage.setItem(\"scoreE" + e + "M" + m + "P" + i + "\", \"" + item + "\");\n";
                 }
             }
         }
@@ -531,53 +533,80 @@ function revealCard1v1(evt, cardKey) {
         evt.stopPropagation();
     }
     clearTimeout(turnovertimeout);
+    if (selectedCards.length == 0) {
+        showUnsolvedCards();
+    }
+    setBackgroundColours();
 
     if ((isPlayerOneTurn && cardOrder.indexOf(cardKey) < numAnimals)
         || (!isPlayerOneTurn && cardOrder.indexOf(cardKey) >= numAnimals)) {
         // Player clicked one of their cards on their turn
+        if (document.getElementsByClassName("card " + cardKey)[0]
+                    .classList.contains("hidden")) {
+            return;
+        }
+
         if (selectedCards.indexOf(cardOrder.indexOf(cardKey)) != -1) {
+            // This card has already been selected
             return;
         }
     
         selectedCards.push(cardOrder.indexOf(cardKey));
         hideCard(cardKey);
+
         if (selectedCards.length > 1) {
-            // Assign point if they match
+            // This is the second card turned over
+            // Assign a point if they match
+            let match = false;
+
+            // Note to self: This code could well be shortened, but I have decided
+            // to leave it as it is for understanding's sake
             if (isPlayerOneTurn) {
-                if (animals[selectedCards[1] % 12] == p2Animals[selectedCards[0] % 12]) {
+                let playerOneAnimal = animals[selectedCards[1] % 12];
+                let playerTwoAnimal = p2Animals[selectedCards[0] % 12];
+                if (playerOneAnimal == playerTwoAnimal) {
                     playerOneScore += 1;
+                    match = true;
                     // What to put in matchesFound when animals are out of order on each side?
-                    //matchesFound[] = 1;
+                    // ==> Line them up according to the [animals] array
+                    matchesFound[animals.indexOf(playerOneAnimal)] = 1;
                 }
             }
             else {
-                if (animals[selectedCards[0] % 12] == p2Animals[selectedCards[1] % 12]) {
+                let playerOneAnimal = animals[selectedCards[0] % 12];
+                let playerTwoAnimal = p2Animals[selectedCards[1] % 12];
+                if (playerOneAnimal == playerTwoAnimal) {
                     playerTwoScore += 1;
+                    match = true;
+                    matchesFound[animals.indexOf(playerTwoAnimal)] = 1;
                 }
+            }
+            if (match && calculateSum(matchesFound) == numAnimals) {
+                gameState = GameState.End;
+                setPlayAgainButtonVisibility(true);
             }
             updateMessage();
             // Show green/red background then back to active colour
-            // Show cards after x seconds
+            showColouredBackground(match);
             selectedCards = [];
 
+            // Show cards after x seconds
             turnovertimeout = setTimeout(() => {
                 showUnsolvedCards();
-                gameState = GameState.Open;
+                setBackgroundColours();
             }, getTimeoutForMode());
         }
         else {
             flipPlayerTurn();
         }
     }
-
-
-    // TODO
 }
 
 function getTimeoutForMode() {
     return (easyMode ? 2 : 1)*(500*(copiesPerAnimal+1));
 }
 
+// TODO: Upgrade this to handle (or rather ignore) for 1v1
 function handleBackgroundClick() {
     if (gameState == GameState.Fail || gameState == GameState.Match) {
         showUnsolvedCards();
@@ -585,6 +614,19 @@ function handleBackgroundClick() {
         gameState = GameState.Open;
         updateMessage();
         updateProgressStepper();
+    }
+}
+
+function showColouredBackground(isMatch) {
+    let matchColour = "#a1e597";
+    let noMatchColour = "#ffa8a8";
+    if (isPlayerOneTurn) {
+        document.getElementsByClassName("left")[0].style.backgroundColor =
+            isMatch ? matchColour : noMatchColour;
+    }
+    else {
+        document.getElementsByClassName("right")[0].style.backgroundColor =
+            isMatch ? matchColour : noMatchColour;
     }
 }
 
@@ -614,20 +656,19 @@ function hideCard(id) {
 
 function showUnsolvedCards() {
     if (competitiveMode) {
-        for (let i = 0; i < numAnimals * 2; i++) {
-            if (matchesFound[Math.floor(i / copiesPerAnimal)] != 1) {
-                card = document.getElementsByClassName("card " + i)[0];
-                card.classList.remove("hidden");
-                card.classList.add("visible");
+        for (let i = 0; i < numAnimals; i++) {
+            if (matchesFound[i] != 1) {
+                setElementVisibilityByClass("card " + cardOrder[i], true);
+                anml = animals[i];
+                p2index = p2Animals.indexOf(anml);
+                setElementVisibilityByClass("card " + cardOrder[p2index + 12], true);
             }
         }
     }
     else {
         for (let i=0; i<numAnimals*copiesPerAnimal; i++) {
-            if (matchesFound[Math.floor(i/copiesPerAnimal)] != 1) {
-                card = document.getElementsByClassName("card " + i)[0];
-                card.classList.remove("hidden");
-                card.classList.add("visible");
+            if (matchesFound[Math.floor(i / copiesPerAnimal)] != 1) {
+                setElementVisibilityByClass("card " + i, true);
             }
         }
     }
@@ -664,18 +705,29 @@ function selectRandomFromArray(array) {
 }
 
 function setPlayAgainButtonVisibility(value) {
-    setButtonVisibility("playagain", value);
-    setButtonVisibility("menu", value);
+    setElementVisibility("playagain", value);
+    setElementVisibility("menu", value);
 }
 
-function setButtonVisibility(buttonID, value) {
-    button = document.getElementById(buttonID);
+function setElementVisibility(elementID, value) {
+    element = document.getElementById(elementID);
     if (value) {
-        button.classList.add("visible");
-        button.classList.remove("hidden");
+        element.classList.add("visible");
+        element.classList.remove("hidden");
     } else {
-        button.classList.add("hidden");
-        button.classList.remove("visible");
+        element.classList.add("hidden");
+        element.classList.remove("visible");
+    }
+}
+
+function setElementVisibilityByClass(elementClassName, value) {
+    element = document.getElementsByClassName(elementClassName)[0];
+    if (value) {
+        element.classList.add("visible");
+        element.classList.remove("hidden");
+    } else {
+        element.classList.add("hidden");
+        element.classList.remove("visible");
     }
 }
 
