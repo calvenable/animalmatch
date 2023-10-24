@@ -2,11 +2,8 @@
 
 Animal Match is a simple pair-matching memory game where the player turns over pairs of cards and tries to find matching animals. This game is implemented in pure JavaScript using localStorage for leaderboards, so can easily be cheated using the console or modifying web elements, but short of a server-client implementation this is unavoidable. It's still fun to play!
 
-## Install instructions
-1. Clone / download & extract the repository to a location of your choice, say `C:/Documents/Git/animalmatch`.
-2. Open your browser of choice and enter `<folderUrl>/page.html` in the address bar. In my case that's `C:/Documents/Git/animalmatch/page.html`
-
-And voila! You're all set to start matching animals.
+## Setup instructions
+Go to [calvenable.github.io/animalmatch](https://calvenable.github.io/animalmatch/) to play. No setup necessary!
 
 >N.B. This project was created on a 2560x1440 monitor, and game elements are aligned with a mix of percentages and pixels. This may cause alignment/view problems on screens with different resolutions.
 
@@ -14,11 +11,11 @@ And voila! You're all set to start matching animals.
 
 There are four single-player gamemodes:
  - Classic (finding pairs of animals)
- - 3-match (still 12 unique animals, but there are 3 of each)
- - 4-match (4 of each animal)
+ - 3-match (still 12 unique animals, but now there are 3 of each)
+ - 4-match (finding sets of 4 of each animal)
  - 6-match (you guessed it: 6 of each animal to find)
 
-Naturally,these get progressively harder.
+Naturally, these get progressively harder.
 
 For single-player modes, highscores are stored in a leaderboard for each gamemode. Names are limited to exactly 3 characters long, reminiscent of old-school videogame leaderboards.
 
